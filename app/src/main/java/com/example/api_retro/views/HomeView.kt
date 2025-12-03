@@ -5,14 +5,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,30 +40,61 @@ import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
 import com.example.api_retro.viewModel.MusicViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-// ... imports ...
-// Asegúrate de recibir MusicViewModel en lugar de GamesViewModel
-
 @Composable
 fun HomeView(viewModel: MusicViewModel, navController: NavController) {
-    val artists by viewModel.artists.collectAsState() // Observamos la lista
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Metal Wiki 🤘", color = Color.White) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black) // Un toque dark
-            )
+            // Quitamos el botón de búsqueda de aquí porque ya estará abajo
+            MainTopBar(title = "Metal Wiki \uD83E\uDD18", onClickBackButton = {}) {}
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier.padding(paddingValues).background(Color.DarkGray)
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .background(Color(CUSTOM_BLACK))
         ) {
-            items(artists) { artist ->
-                ArtistCard(artist) {
-                    // Al dar click, guardamos el estado y navegamos
-                    viewModel.getArtistDetail(artist)
-                    navController.navigate("DetailView")
+            // --- NUEVO: BARRA DE BÚSQUEDA FLOTANTE ---
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable { navController.navigate("SearchGameView") }, // Al tocar, te lleva a la vista de búsqueda
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color.Gray)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Buscar banda (ej: Rammstein)...", color = Color.Gray)
                 }
+            }
+
+            // --- TU LISTA DE FAVORITOS ---
+            ContentHomeView(viewModel, PaddingValues(0.dp), navController)
+        }
+    }
+}
+
+@Composable
+fun ContentHomeView(viewModel: MusicViewModel, pad: PaddingValues, navController: NavController) {
+    // 1. Observamos la lista de artistas (MusicViewModel), no de juegos
+    val artists by viewModel.artists.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier
+            .padding(pad)
+            .background(Color(CUSTOM_BLACK))
+    ) {
+        // 2. Iteramos sobre los artistas
+        items(artists) { artist ->
+            // 3. Usamos ArtistCard (que tienes definida abajo o en BodyComponents)
+            ArtistCard(artist) {
+                // Al hacer clic: cargamos detalle y navegamos
+                viewModel.getArtistDetail(artist)
+                navController.navigate("DetailView")
             }
         }
     }

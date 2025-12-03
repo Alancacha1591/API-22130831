@@ -38,7 +38,18 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     private fun fetchFavoriteBands() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val myFavorites = listOf("Metallica", "Iron Maiden", "Megadeth", "Slayer", "Slipknot")
+                val myFavorites = listOf("Metallica",
+                    "Iron Maiden",
+                    "Megadeth",
+                    "Slayer",
+                    "Slipknot",
+                    "Black Sabbath",
+                    "Judas Priest",
+                    "Pantera",
+                    "System of a Down",
+                    "Rammstein",
+                    "Motorhead",
+                    "Dio")
                 val tempList = mutableListOf<Artist>()
                 myFavorites.forEach { bandName ->
                     val result = repo.searchArtist(bandName)

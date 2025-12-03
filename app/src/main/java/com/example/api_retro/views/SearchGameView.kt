@@ -3,17 +3,18 @@ package com.example.api_retro.views
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,11 +37,9 @@ import com.example.api_retro.viewModel.MusicViewModel
 @Composable
 fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
 
-    // Variables para manejar el texto de la barra de búsqueda
+    // Variable solo para el texto, ya no necesitamos 'active'
     var query by remember { mutableStateOf("") }
-    var active by remember { mutableStateOf(false) }
 
-    // Observamos la lista de resultados de búsqueda del ViewModel
     val artists by viewModel.searchResults.collectAsState()
 
     Column(
@@ -55,30 +54,33 @@ fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
             query = query,
             onQueryChange = { query = it },
             onSearch = {
-                // Al presionar Enter en el teclado, ejecutamos la búsqueda
                 viewModel.fetchSearchArtist(query)
-                active = false
+                // Ya no necesitamos desactivar nada aquí
             },
-            active = active,
-            onActiveChange = { active = it },
+            active = false, // TRUCO: Forzamos a que nunca se expanda
+            onActiveChange = {  }, // No hacemos nada si intenta activarse
             placeholder = { Text("Buscar banda (ej: Nirvana)...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            leadingIcon = {
+                // Agregamos botón de regreso para que sea fácil salir
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            },
             trailingIcon = {
-                if (active) {
+                // Mostramos la X solo si hay texto para borrar
+                if (query.isNotEmpty()) {
                     Icon(
-                        modifier = Modifier.clickable {
-                            if (query.isNotEmpty()) query = "" else active = false
-                        },
+                        modifier = Modifier.clickable { query = "" },
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close"
                     )
                 }
             }
         ) {
-            // Sugerencias (opcional, por ahora vacío)
+            // Contenido vacío porque los resultados están afuera (en el LazyColumn de abajo)
         }
 
-        // Título de resultados
+        // Título de resultados (Opcional, se ve bien)
         if (artists.isNotEmpty()) {
             Text(
                 text = "Resultados:",
