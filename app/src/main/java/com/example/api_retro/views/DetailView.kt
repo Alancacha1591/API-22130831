@@ -1,6 +1,8 @@
 package com.example.api_retro.views
 
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,12 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.api_retro.components.AlbumCard
 import com.example.api_retro.components.MainImage
 import com.example.api_retro.components.MainTopBar
 import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
@@ -72,19 +76,16 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
             Text(text = "Discography", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
 
             // Lista horizontal de discos
+            // Necesitas este contexto para el Toast
+            val context = LocalContext.current
+
             LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
                 items(state.albums) { album ->
-                    Column(
-                        modifier = Modifier.padding(end = 12.dp).width(120.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AsyncImage(
-                            model = album.strAlbumThumb,
-                            contentDescription = null,
-                            modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp))
-                        )
-                        Text(text = album.strAlbum, color = Color.White, fontSize = 12.sp, maxLines = 1)
-                        Text(text = album.intYearReleased, color = Color.Gray, fontSize = 10.sp)
+                    // Envolvemos el AlbumCard en un Box o Column clickable
+                    Column(modifier = Modifier.clickable {
+                        Toast.makeText(context, "Disco: ${album.strAlbum} (${album.intYearReleased})", Toast.LENGTH_SHORT).show()
+                    }) {
+                        AlbumCard(album)
                     }
                 }
             }
