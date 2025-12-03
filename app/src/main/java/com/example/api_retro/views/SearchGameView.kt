@@ -1,8 +1,14 @@
 package com.example.api_retro.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -22,49 +28,75 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.api_retro.viewModel.GamesViewModel
+import com.example.api_retro.components.ArtistCard
+import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
+import com.example.api_retro.viewModel.MusicViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchGameView(viewModel: GamesViewModel, navController: NavController){
+fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
 
+    // Variables para manejar el texto de la barra de búsqueda
     var query by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false) }
-    val games by viewModel.games.collectAsState()
 
-    SearchBar(
+    // Observamos la lista de resultados de búsqueda del ViewModel
+    val artists by viewModel.searchResults.collectAsState()
+
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        query = query,
-        onQueryChange = { query = it } ,
-        onSearch = { active = false },
-        active = active,
-        onActiveChange = { active = it },
-        placeholder = { Text(text = "Search") },
-        leadingIcon = {
-            Icon(imageVector = Icons.Default.Search, contentDescription = "")
-        },
-        trailingIcon = {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "",
-                modifier = Modifier.clickable { navController.popBackStack() }
+            .fillMaxHeight()
+            .background(Color(CUSTOM_BLACK))
+    ) {
+        SearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            query = query,
+            onQueryChange = { query = it },
+            onSearch = {
+                // Al presionar Enter en el teclado, ejecutamos la búsqueda
+                viewModel.fetchSearchArtist(query)
+                active = false
+            },
+            active = active,
+            onActiveChange = { active = it },
+            placeholder = { Text("Buscar banda (ej: Nirvana)...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = {
+                if (active) {
+                    Icon(
+                        modifier = Modifier.clickable {
+                            if (query.isNotEmpty()) query = "" else active = false
+                        },
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close"
+                    )
+                }
+            }
+        ) {
+            // Sugerencias (opcional, por ahora vacío)
+        }
+
+        // Título de resultados
+        if (artists.isNotEmpty()) {
+            Text(
+                text = "Resultados:",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
             )
         }
-    ) {
-        if(query.isNotEmpty()){
-            val filterGames = games.filter { it.name.contains(query,
-                ignoreCase = true) }
-            filterGames.forEach {
-                Text(text = it.name,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 10.dp, start = 10.dp)
-                        .clickable {
-                            navController.navigate("DetailView/${it.id}")
-                        }
-                )
+
+        // Lista de resultados
+        LazyColumn {
+            items(artists) { artist ->
+                ArtistCard(artist) {
+                    viewModel.getArtistDetail(artist)
+                    navController.navigate("DetailView")
+                }
             }
         }
     }
-
 }

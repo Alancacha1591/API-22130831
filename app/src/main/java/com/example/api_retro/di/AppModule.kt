@@ -1,6 +1,6 @@
 package com.example.api_retro.di
 
-import com.example.api_retro.data.APIGames
+import com.example.api_retro.data.ApiService // Asegúrate de importar tu nueva interfaz
 import com.example.api_retro.utils.Constants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -8,12 +8,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object  AppModule {
+object AppModule {
 
     @Singleton
     @Provides
@@ -26,8 +25,7 @@ object  AppModule {
 
     @Singleton
     @Provides
-    fun providesAPIGames(retrofit: Retrofit) : APIGames {
-        return retrofit.create(APIGames::class.java)
+    fun providesApiService(retrofit: Retrofit): ApiService { // Cambiado nombre y tipo
+        return retrofit.create(ApiService::class.java)
     }
-
 }

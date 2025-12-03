@@ -2,12 +2,13 @@ package com.example.api_retro.components
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,26 +26,36 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
-import com.example.api_retro.model.GameList
+import coil.compose.AsyncImage
+import com.example.api_retro.model.Album
+import com.example.api_retro.model.Artist
 import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
-import com.example.api_retro.utils.Constants.Companion.CUSTOM_GREEN
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopBar(title: String, showBackButton: Boolean = false,
-               onClickBackButton: () -> Unit,
-               onClickAction: () -> Unit) {
+fun MainTopBar(
+    title: String,
+    showBackButton: Boolean = false,
+    onClickBackButton: () -> Unit,
+    onClickAction: () -> Unit
+) {
     TopAppBar(
-        title = { Text(text = title, color = Color.White,
-            fontWeight = FontWeight.ExtraBold) },
+        title = {
+            Text(
+                text = title,
+                color = Color.White,
+                fontWeight = FontWeight.ExtraBold
+            )
+        },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = Color(CUSTOM_BLACK)
         ),
@@ -53,7 +64,7 @@ fun MainTopBar(title: String, showBackButton: Boolean = false,
                 IconButton(onClick = { onClickBackButton() }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "",
+                        contentDescription = "Back",
                         tint = Color.White
                     )
                 }
@@ -64,7 +75,7 @@ fun MainTopBar(title: String, showBackButton: Boolean = false,
                 IconButton(onClick = { onClickAction() }) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "",
+                        contentDescription = "Search",
                         tint = Color.White
                     )
                 }
@@ -73,85 +84,106 @@ fun MainTopBar(title: String, showBackButton: Boolean = false,
     )
 }
 
-
 @Composable
-fun CardGame(game: GameList, onClick: () -> Unit) {
+fun ArtistCard(artist: Artist, onClick: () -> Unit) {
     Card(
-        shape = RoundedCornerShape(5.dp),
+        shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .padding(10.dp)
-            .shadow(40.dp)
-            .clickable { onClick() }
+            .shadow(8.dp)
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color(CUSTOM_BLACK) // Fondo oscuro para la tarjeta
+        )
     ) {
         Column {
-            MainImage(image = game.background_image)
+            MainImage(image = artist.strArtistThumb ?: "")
+
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = artist.strArtist,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = artist.strGenre ?: "Género desconocido",
+                    color = Color.LightGray,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
 
 @Composable
 fun MainImage(image: String) {
-    val image = rememberImagePainter(data = image)
-
-    Image(
-        painter = image,
+    // Usamos AsyncImage que es la forma moderna de Coil en Compose
+    AsyncImage(
+        model = image,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .fillMaxWidth()
             .height(250.dp)
     )
+}
 
+// Componente para mostrar cada disco en la lista horizontal
+@Composable
+fun AlbumCard(album: Album) {
+    Column(
+        modifier = Modifier
+            .padding(end = 12.dp)
+            .width(120.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AsyncImage(
+            model = album.strAlbumThumb ?: "", // Si es nulo, Coil maneja el error
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = album.strAlbum,
+            color = Color.White,
+            fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+        Text(
+            text = album.intYearReleased,
+            color = Color.Gray,
+            fontSize = 10.sp
+        )
+    }
 }
 
 @Composable
-fun MetaWebsite(url: String) {
-
-    val context = LocalContext.current
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
-    Column {
-        Text(
-            text = "METASCORE",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp,
-            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-        )
+fun WebsiteButton(url: String?) {
+    // Verificamos que la URL no sea nula o vacía
+    if (!url.isNullOrEmpty()) {
+        val context = LocalContext.current
+        // Aseguramos que tenga el protocolo https
+        val finalUrl = if (url.startsWith("http")) url else "https://$url"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
 
         Button(
             onClick = { context.startActivity(intent) },
             colors = ButtonDefaults.buttonColors(
                 contentColor = Color.White,
-                containerColor = Color.Gray
-
-            )
+                containerColor = Color.DarkGray
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            shape = RoundedCornerShape(8.dp)
         ) {
-            Text(text = "Sitio Web")
-        }
-    }
-}
-
-@Composable
-fun ReviewCard(metascore: Int) {
-    Card(
-        modifier = Modifier
-            .padding(16.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(CUSTOM_GREEN)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = metascore.toString(),
-                color = Color.White,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 50.sp
-            )
+            Text(text = "Visitar Sitio Web Oficial")
         }
     }
 }
