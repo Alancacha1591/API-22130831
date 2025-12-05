@@ -137,12 +137,37 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     }
 
     fun fetchSearchArtist(query: String) {
+        // 1. Limpieza básica: quitamos espacios
         val cleanQuery = query.trim()
-        if (cleanQuery.isEmpty()) return
+
+        // Si el usuario borra todo, limpiamos la lista de resultados
+        if (cleanQuery.isEmpty()) {
+            _searchResults.value = emptyList()
+            return
+        }
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val result = repo.searchArtist(cleanQuery)
-                _searchResults.value = result ?: emptyList()
+                try {
+                    // INTENTO 1: Búsqueda normal (tal cual lo escribió el usuario)
+                    var result = repo.searchArtist(cleanQuery)
+
+                    // INTENTO 2: Estrategia "Fuzzy" (Truco del comodín)
+                    // Si la búsqueda exacta no trajo nada o la lista está vacía...
+                    if (result.isNullOrEmpty()) {
+                        // Agregamos "%" al final. En muchas bases de datos SQL (que usa la API por detrás),
+                        // esto significa "todo lo que empiece con..."
+                        // Ejemplo: "Juan%" encontrará "Juanes", "Juan Gabriel", etc.
+                        result = repo.searchArtist("$cleanQuery%")
+                    }
+
+                    // Actualizamos la lista con lo que hayamos encontrado (o vacía si falló todo)
+                    _searchResults.value = result ?: emptyList()
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    _searchResults.value = emptyList()
+                }
             }
         }
     }

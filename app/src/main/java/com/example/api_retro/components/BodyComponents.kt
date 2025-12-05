@@ -3,7 +3,9 @@ package com.example.api_retro.components
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,9 +36,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.api_retro.model.Album
 import com.example.api_retro.model.Artist
@@ -133,6 +138,55 @@ fun WebsiteButton(url: String?) {
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(text = "Visitar Sitio Web Oficial")
+        }
+    }
+}
+
+@Composable
+fun EmptyFavoritesMessage(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 64.dp, start = 32.dp, end = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Icono (opcional)
+        Icon(
+            imageVector = Icons.Filled.StarOutline,
+            contentDescription = "No favoritos",
+            tint = Color.Gray,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Título del mensaje
+        Text(
+            text = "¡Aún no tienes favoritos!",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Cuerpo del mensaje
+        Text(
+            text = "Busca tus artistas preferidos y toca la estrella para agregarlos a esta lista.",
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Botón para ir a buscar (Asumiendo que tu ruta de búsqueda es "SearchArtistView")
+        Button(
+            onClick = {
+                // Navega a tu pantalla de búsqueda
+                navController.navigate("SearchArtistView")
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B)) // Color verde oscuro de ejemplo
+        ) {
+            Text("Buscar Artistas")
         }
     }
 }

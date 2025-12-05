@@ -9,16 +9,35 @@ import com.example.api_retro.views.AlbumDetailView
 import com.example.api_retro.views.DetailView
 import com.example.api_retro.views.HomeView
 import com.example.api_retro.views.SearchArtistView
+import com.example.api_retro.views.WelcomeView
 
 @Composable
 fun NavManager(viewModel: MusicViewModel) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "Home") {
+    NavHost(
+        navController = navController,
+        startDestination = "WelcomeView"
+    ) {
+        composable("WelcomeView") {
+            WelcomeView(navController = navController)
+        }
 
-        composable("Home") { HomeView(viewModel, navController) }
-        composable("DetailView") { DetailView(viewModel, navController) }
-        composable("SearchArtistView") { SearchArtistView(viewModel, navController) }
-        composable("AlbumDetailView") { AlbumDetailView(viewModel, navController) }
+        composable("HomeView") {
+            HomeView(viewModel, navController)
+        }
+
+
+        composable("DetailView") {
+            DetailView(viewModel, navController)
+        }
+
+        composable("AlbumDetailView") {
+            AlbumDetailView(viewModel, navController)
+        }
+
+        composable("SearchArtistView") {
+            SearchArtistView(viewModel, navController)
+        }
     }
 }
