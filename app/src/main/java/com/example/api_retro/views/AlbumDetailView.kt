@@ -120,6 +120,5 @@ fun TrackItem(track: com.example.api_retro.model.Track) {
             val min = duration / 60000
             Text(text = "${min}m", color = Color.Gray, fontSize = 12.sp)
         }
-        Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = Color.DarkGray, modifier = Modifier.padding(start=10.dp))
     }
 }

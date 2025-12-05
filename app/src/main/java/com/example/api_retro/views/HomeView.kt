@@ -51,7 +51,7 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
                 drawerContainerColor = Color(CUSTOM_BLACK),
                 drawerContentColor = Color.White
             ) {
-                Text("Metal Dashboard \uD83E\uDD18", modifier = Modifier.padding(20.dp), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("MENU", modifier = Modifier.padding(20.dp), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Divider(color = Color.Gray, modifier = Modifier.padding(bottom = 10.dp))
 
                 // OPCIONES DEL MENÚ
@@ -67,8 +67,28 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
                     viewModel.loadCategory("Nu Metal")
                     scope.launch { drawerState.close() }
                 }
-                DrawerItem("Clásicos del Rock") {
+                DrawerItem("Top Heavy Metal") {
+                    viewModel.loadCategory("Heavy Metal")
+                    scope.launch { drawerState.close() }
+                }
+                DrawerItem("Top Metalcore") {
+                    viewModel.loadCategory("Metalcore")
+                    scope.launch { drawerState.close() }
+                }
+                DrawerItem("Top Rock Clásico") {
                     viewModel.loadCategory("Classic Rock")
+                    scope.launch { drawerState.close() }
+                }
+                DrawerItem("Top Hard Rock") {
+                    viewModel.loadCategory("Hard rock")
+                    scope.launch { drawerState.close() }
+                }
+                DrawerItem("Top Grunge") {
+                    viewModel.loadCategory("Grunge")
+                    scope.launch { drawerState.close() }
+                }
+                DrawerItem("Top Rock Alternativo") {
+                    viewModel.loadCategory("Rock Alternativo")
                     scope.launch { drawerState.close() }
                 }
             }
@@ -80,7 +100,7 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
                 MainTopBar(
                     title = currentTitle,
                     onClickDrawer = { scope.launch { drawerState.open() } }, // Abre el menú
-                    onClickSearch = { navController.navigate("SearchGameView") } // Va a buscar
+                    onClickSearch = { navController.navigate("SearchArtistView") } // <--- Nombre Nuevo Correcto
                 )
             }
         ) { paddingValues ->

@@ -46,8 +46,13 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         val bandsToLoad = when(category) {
             "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
             "Nu Metal" -> listOf("Korn", "Slipknot", "Linkin Park", "System of a Down")
+            "Heavy Metal" -> listOf("Iron Maiden", "Judas Priest", "Helloween", "Ozzy Osbourne")
+            "Metalcore" -> listOf("Bullet for My Valentine", "Killswitch Engage", "Bring Me the Horizon", "Architects")
             "Classic Rock" -> listOf("Queen", "The Beatles", "Led Zeppelin", "Pink Floyd")
-            "Favorites" -> listOf("Metallica", "Iron Maiden", "Megadeth", "Black Sabbath")
+            "Hard rock" -> listOf("Guns N' Roses", "Van Halen", "AC/DC", "Def Leppard")
+            "Grunge" -> listOf("Alice in Chains", "Nirvana", "Soundgarden", "Pearl Jam")
+            "Rock Alternativo" -> listOf("The Killers", "The Strokes", "The White Stripes", "Arctic Monkeys")
+            "Favorites" -> listOf("Death", "Poppy", "Avenged Sevenfold", "Spiritbox", "The Warning")
             else -> emptyList()
         }
         currentCategoryTitle = if (category == "Favorites") "Mis Favoritos" else "Top $category"

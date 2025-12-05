@@ -58,7 +58,7 @@ fun SearchArtistView(viewModel: MusicViewModel, navController: NavController) {
                 onSearch = { viewModel.fetchSearchArtist(query) },
                 active = false,
                 onActiveChange = {},
-                placeholder = { Text("Busca una banda...") },
+                placeholder = { Text("Busca un artista o una banda...") },
                 colors = SearchBarDefaults.colors(containerColor = Color.White),
                 leadingIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
