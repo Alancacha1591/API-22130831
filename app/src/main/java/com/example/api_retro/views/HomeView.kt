@@ -68,7 +68,7 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
                 ) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color.Gray)
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = "Buscar banda (ej: Rammstein)...", color = Color.Gray)
+                    Text(text = "Buscar banda...", color = Color.Gray)
                 }
             }
 

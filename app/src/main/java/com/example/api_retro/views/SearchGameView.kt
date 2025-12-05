@@ -59,7 +59,7 @@ fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
             },
             active = false, // TRUCO: Forzamos a que nunca se expanda
             onActiveChange = {  }, // No hacemos nada si intenta activarse
-            placeholder = { Text("Buscar banda (ej: Nirvana)...") },
+            placeholder = { Text("Buscar banda...") },
             leadingIcon = {
                 // Agregamos botón de regreso para que sea fácil salir
                 IconButton(onClick = { navController.popBackStack() }) {
