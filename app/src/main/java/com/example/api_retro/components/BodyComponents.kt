@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu // Necesario para el Dashboard
+import androidx.compose.material.icons.filled.Menu // IMPORTANTE
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,27 +47,21 @@ fun MainTopBar(
     title: String,
     showBackButton: Boolean = false,
     onClickBackButton: () -> Unit = {},
-    onClickDrawer: () -> Unit = {}, // ACCIÓN PARA ABRIR MENÚ
-    onClickSearch: () -> Unit = {}  // ACCIÓN PARA IR A BUSCAR
+    onClickDrawer: () -> Unit = {}, // Nuevo parámetro para el menú
+    onClickSearch: () -> Unit = {}  // Nuevo parámetro para la búsqueda
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = title,
-                color = Color.White,
-                fontWeight = FontWeight.ExtraBold
-            )
+            Text(text = title, color = Color.White, fontWeight = FontWeight.ExtraBold)
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(CUSTOM_BLACK)
-        ),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(CUSTOM_BLACK)),
         navigationIcon = {
             if (showBackButton) {
                 IconButton(onClick = { onClickBackButton() }) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             } else {
-                // AQUÍ ESTÁ LA HAMBURGUESA PARA EL MENÚ
+                // Si estamos en HOME, mostramos el menú (hamburguesa)
                 IconButton(onClick = { onClickDrawer() }) {
                     Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
                 }
@@ -75,7 +69,7 @@ fun MainTopBar(
         },
         actions = {
             if (!showBackButton) {
-                // LUPA PARA IR A LA VISTA DE BÚSQUEDA
+                // Lupa para ir a buscar
                 IconButton(onClick = { onClickSearch() }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                 }
@@ -88,30 +82,14 @@ fun MainTopBar(
 fun ArtistCard(artist: Artist, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .padding(10.dp)
-            .shadow(8.dp)
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(CUSTOM_BLACK)
-        )
+        modifier = Modifier.padding(10.dp).shadow(8.dp).fillMaxWidth().clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color(CUSTOM_BLACK))
     ) {
         Column {
             MainImage(image = artist.strArtistThumb ?: "")
-
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = artist.strArtist,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                Text(
-                    text = artist.strGenre ?: "Metal",
-                    color = Color.LightGray,
-                    fontSize = 14.sp
-                )
+                Text(text = artist.strArtist, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(text = artist.strGenre ?: "Metal", color = Color.LightGray, fontSize = 14.sp)
             }
         }
     }

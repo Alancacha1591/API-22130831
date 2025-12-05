@@ -4,7 +4,7 @@ class Constants {
 
     companion object{
         // La URL base para la versión 1 de la API, usando la key de prueba "2"
-        const val BASE_URL = "https://www.theaudiodb.com/api/v1/json/123/"
+        const val BASE_URL = "https://www.theaudiodb.com/api/v1/json/2/"
 
         // Endpoints específicos que usaremos (se concatenan en la interfaz)
         const val SEARCH_ARTIST = "search.php"

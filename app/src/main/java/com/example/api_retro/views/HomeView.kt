@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,14 +36,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(viewModel: MusicViewModel, navController: NavController) {
-    // Estado del Menú Lateral
+    // Estado para controlar si el menú está abierto o cerrado
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Titulo dinámico (ej: "Top Thrash Metal")
+    // Título dinámico (ej: "Top Thrash Metal")
     val currentTitle = viewModel.currentCategoryTitle
 
-    // --- MENÚ LATERAL (DRAWER) ---
+    // --- EL COMPONENTE DE MENÚ LATERAL ---
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -53,7 +54,7 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
                 Text("Metal Dashboard \uD83E\uDD18", modifier = Modifier.padding(20.dp), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Divider(color = Color.Gray, modifier = Modifier.padding(bottom = 10.dp))
 
-                // Opciones para cambiar la lista
+                // OPCIONES DEL MENÚ
                 DrawerItem("Mis Favoritos") {
                     viewModel.loadCategory("Favorites")
                     scope.launch { drawerState.close() }
@@ -73,7 +74,7 @@ fun HomeView(viewModel: MusicViewModel, navController: NavController) {
             }
         }
     ) {
-        // --- CONTENIDO PRINCIPAL ---
+        // --- CONTENIDO PRINCIPAL (SCAFFOLD) ---
         Scaffold(
             topBar = {
                 MainTopBar(
@@ -94,8 +95,8 @@ fun DrawerItem(text: String, onClick: () -> Unit) {
         text = text,
         fontSize = 18.sp,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(15.dp)
+            .fillMaxWidth() // <--- CAMBIO IMPORTANTE: Solo llena el ancho, no la altura
+            .padding(vertical = 15.dp, horizontal = 20.dp) // Un poco más de aire
             .clickable { onClick() },
         color = Color.White
     )
@@ -113,7 +114,6 @@ fun ContentHomeView(viewModel: MusicViewModel, pad: PaddingValues, navController
     ) {
         LazyColumn {
             items(artists) { artist ->
-                // Usamos la ArtistCard de BodyComponents.kt
                 ArtistCard(artist) {
                     viewModel.getArtistDetail(artist)
                     navController.navigate("DetailView")
