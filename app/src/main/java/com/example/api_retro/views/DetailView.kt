@@ -47,47 +47,46 @@ import com.example.api_retro.viewModel.MusicViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailView(viewModel: MusicViewModel, navController: NavController) {
-    val state = viewModel.state // Accedemos al estado (MusicDetailState)
+    val state = viewModel.state
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            MainTopBar(
+                title = state.artistName,
+                showBackButton = true, // Activamos el botón
+                onClickBackButton = { navController.popBackStack() } // Acción de volver
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.Black)
-                .verticalScroll(rememberScrollState()) // Para poder bajar si la bio es larga
+                .background(Color(CUSTOM_BLACK))
+                .verticalScroll(rememberScrollState())
         ) {
-            // Imagen Gigante de la banda
-            AsyncImage(
-                model = state.artistImage,
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(250.dp),
-                contentScale = ContentScale.Crop
-            )
+            // ... (Tu código de imagen y textos se mantiene igual) ...
+            MainImage(image = state.artistImage)
 
-            // Nombre y Bio
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = state.artistName, fontSize = 30.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = state.biography, color = Color.LightGray, maxLines = 6) // Bio resumida
+                Text(text = "Biografía", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = state.biography, color = Color.LightGray)
             }
 
-            // Sección de Discos
-            Text(text = "Discography", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
+            Text(text = "Discografía", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
 
-            // Lista horizontal de discos
-            // Necesitas este contexto para el Toast
-            val context = LocalContext.current
-
-            LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
-                items(state.albums) { album ->
-                    // Envolvemos el AlbumCard en un Box o Column clickable
-                    Column(modifier = Modifier.clickable {
-                        Toast.makeText(context, "Disco: ${album.strAlbum} (${album.intYearReleased})", Toast.LENGTH_SHORT).show()
-                    }) {
+            // Aquí nos aseguramos de que se muestren todos los disponibles
+            if (state.albums.isNotEmpty()) {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    modifier = Modifier.height(180.dp) // Altura fija para evitar recortes
+                ) {
+                    items(state.albums) { album ->
                         AlbumCard(album)
                     }
                 }
+            } else {
+                Text("No albums found (API Limit)", color = Color.Red, modifier = Modifier.padding(16.dp))
             }
         }
     }

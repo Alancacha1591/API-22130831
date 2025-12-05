@@ -19,39 +19,45 @@ import javax.inject.Inject
 @HiltViewModel
 class MusicViewModel @Inject constructor(private val repo: MusicRepository) : ViewModel() {
 
-    // Lista del HOME (Favoritos)
+    // Lista principal que se muestra en el Home
     private val _artists = MutableStateFlow<List<Artist>>(emptyList())
     val artists = _artists.asStateFlow()
 
-    // Lista para la BÚSQUEDA
+    // Resultados de búsqueda
     private val _searchResults = MutableStateFlow<List<Artist>>(emptyList())
     val searchResults = _searchResults.asStateFlow()
 
-    // Estado del DETALLE
+    // Estado del detalle
     var state by mutableStateOf(MusicDetailState())
         private set
 
+    // Titulo actual del Home (para saber en qué categoría estamos)
+    var currentCategoryTitle by mutableStateOf("Mis Favoritos")
+        private set
+
     init {
-        fetchFavoriteBands()
+        loadCategory("Favorites") // Carga inicial
     }
 
-    private fun fetchFavoriteBands() {
+    // --- NUEVO: Función maestra para cambiar de categoría ---
+    fun loadCategory(category: String) {
+        val bandsToLoad = when(category) {
+            "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax", "Sepultura")
+            "Nu Metal" -> listOf("Korn", "Slipknot", "Limp Bizkit", "Linkin Park", "System of a Down")
+            "Classic Rock" -> listOf("Queen", "The Beatles", "Rolling Stones", "Led Zeppelin", "Pink Floyd")
+            "Favorites" -> listOf("Metallica", "Iron Maiden", "Megadeth", "Black Sabbath", "Judas Priest", "Pantera", "Rammstein")
+            else -> emptyList()
+        }
+
+        currentCategoryTitle = if (category == "Favorites") "Mis Favoritos" else "Top $category"
+        fetchBandsList(bandsToLoad)
+    }
+
+    private fun fetchBandsList(bands: List<String>) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val myFavorites = listOf("Metallica",
-                    "Iron Maiden",
-                    "Megadeth",
-                    "Slayer",
-                    "Slipknot",
-                    "Black Sabbath",
-                    "Judas Priest",
-                    "Pantera",
-                    "System of a Down",
-                    "Rammstein",
-                    "Motorhead",
-                    "Dio")
                 val tempList = mutableListOf<Artist>()
-                myFavorites.forEach { bandName ->
+                bands.forEach { bandName ->
                     val result = repo.searchArtist(bandName)
                     result?.firstOrNull()?.let { tempList.add(it) }
                 }
@@ -60,31 +66,33 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         }
     }
 
-    // --- NUEVA FUNCIÓN PARA BUSCAR ---
+    // --- BÚSQUEDA ---
     fun fetchSearchArtist(query: String) {
+        val cleanQuery = query.trim()
+        if (cleanQuery.isEmpty()) return
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                // Llamamos a la API con lo que escribió el usuario
-                val result = repo.searchArtist(query)
-                // Actualizamos la lista de resultados (si es null, ponemos lista vacía)
+                val result = repo.searchArtist(cleanQuery)
                 _searchResults.value = result ?: emptyList()
             }
         }
     }
 
+    // --- DETALLE ---
     fun getArtistDetail(artist: Artist) {
         viewModelScope.launch {
             state = state.copy(
                 artistName = artist.strArtist,
                 biography = artist.strBiographyEN ?: "No biography available",
-                genre = artist.strGenre ?: "Metal",
+                genre = artist.strGenre ?: "Music",
                 artistImage = artist.strArtistThumb ?: "",
                 albums = emptyList()
             )
-            val albumsResult = withContext(Dispatchers.IO) {
-                repo.getAlbums(artist.idArtist)
+            withContext(Dispatchers.IO) {
+                val albumsResult = repo.getAlbums(artist.idArtist)
+                state = state.copy(albums = albumsResult ?: emptyList())
             }
-            state = state.copy(albums = albumsResult ?: emptyList())
         }
     }
 }

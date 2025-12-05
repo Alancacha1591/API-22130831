@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu // Necesario para el Dashboard
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,8 +46,9 @@ import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
 fun MainTopBar(
     title: String,
     showBackButton: Boolean = false,
-    onClickBackButton: () -> Unit,
-    onClickAction: () -> Unit
+    onClickBackButton: () -> Unit = {},
+    onClickDrawer: () -> Unit = {}, // ACCIÓN PARA ABRIR MENÚ
+    onClickSearch: () -> Unit = {}  // ACCIÓN PARA IR A BUSCAR
 ) {
     TopAppBar(
         title = {
@@ -56,28 +58,26 @@ fun MainTopBar(
                 fontWeight = FontWeight.ExtraBold
             )
         },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(CUSTOM_BLACK)
         ),
         navigationIcon = {
             if (showBackButton) {
                 IconButton(onClick = { onClickBackButton() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                }
+            } else {
+                // AQUÍ ESTÁ LA HAMBURGUESA PARA EL MENÚ
+                IconButton(onClick = { onClickDrawer() }) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
                 }
             }
         },
         actions = {
             if (!showBackButton) {
-                IconButton(onClick = { onClickAction() }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = Color.White
-                    )
+                // LUPA PARA IR A LA VISTA DE BÚSQUEDA
+                IconButton(onClick = { onClickSearch() }) {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                 }
             }
         }
@@ -94,7 +94,7 @@ fun ArtistCard(artist: Artist, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = Color(CUSTOM_BLACK) // Fondo oscuro para la tarjeta
+            containerColor = Color(CUSTOM_BLACK)
         )
     ) {
         Column {
@@ -108,7 +108,7 @@ fun ArtistCard(artist: Artist, onClick: () -> Unit) {
                     fontSize = 20.sp
                 )
                 Text(
-                    text = artist.strGenre ?: "Género desconocido",
+                    text = artist.strGenre ?: "Metal",
                     color = Color.LightGray,
                     fontSize = 14.sp
                 )
@@ -119,68 +119,41 @@ fun ArtistCard(artist: Artist, onClick: () -> Unit) {
 
 @Composable
 fun MainImage(image: String) {
-    // Usamos AsyncImage que es la forma moderna de Coil en Compose
     AsyncImage(
         model = image,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
+        modifier = Modifier.fillMaxWidth().height(250.dp)
     )
 }
 
-// Componente para mostrar cada disco en la lista horizontal
 @Composable
 fun AlbumCard(album: Album) {
     Column(
-        modifier = Modifier
-            .padding(end = 12.dp)
-            .width(120.dp),
+        modifier = Modifier.padding(end = 12.dp).width(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = album.strAlbumThumb ?: "", // Si es nulo, Coil maneja el error
+            model = album.strAlbumThumb ?: "",
             contentDescription = null,
-            modifier = Modifier
-                .size(120.dp)
-                .clip(RoundedCornerShape(8.dp)),
+            modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
-        Text(
-            text = album.strAlbum,
-            color = Color.White,
-            fontSize = 12.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-        Text(
-            text = album.intYearReleased,
-            color = Color.Gray,
-            fontSize = 10.sp
-        )
+        Text(text = album.strAlbum, color = Color.White, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp))
+        Text(text = album.intYearReleased, color = Color.Gray, fontSize = 10.sp)
     }
 }
 
 @Composable
 fun WebsiteButton(url: String?) {
-    // Verificamos que la URL no sea nula o vacía
     if (!url.isNullOrEmpty()) {
         val context = LocalContext.current
-        // Aseguramos que tenga el protocolo https
         val finalUrl = if (url.startsWith("http")) url else "https://$url"
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
-
         Button(
             onClick = { context.startActivity(intent) },
-            colors = ButtonDefaults.buttonColors(
-                contentColor = Color.White,
-                containerColor = Color.DarkGray
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp),
+            colors = ButtonDefaults.buttonColors(contentColor = Color.White, containerColor = Color.DarkGray),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
             Text(text = "Visitar Sitio Web Oficial")
