@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.api_retro.model.Album
 import com.example.api_retro.model.Artist
+import com.example.api_retro.model.Track
 import com.example.api_retro.repository.MusicRepository
 import com.example.api_retro.state.MusicDetailState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,36 +21,36 @@ import javax.inject.Inject
 @HiltViewModel
 class MusicViewModel @Inject constructor(private val repo: MusicRepository) : ViewModel() {
 
-    // Lista principal que se muestra en el Home
     private val _artists = MutableStateFlow<List<Artist>>(emptyList())
     val artists = _artists.asStateFlow()
 
-    // Resultados de búsqueda
     private val _searchResults = MutableStateFlow<List<Artist>>(emptyList())
     val searchResults = _searchResults.asStateFlow()
 
-    // Estado del detalle
     var state by mutableStateOf(MusicDetailState())
         private set
 
-    // Titulo actual del Home (para saber en qué categoría estamos)
+    // --- Variables para Tracks y Dashboard ---
+    var selectedAlbum by mutableStateOf<Album?>(null)
+        private set
+    var albumTracks by mutableStateOf<List<Track>>(emptyList())
+        private set
     var currentCategoryTitle by mutableStateOf("Mis Favoritos")
         private set
 
     init {
-        loadCategory("Favorites") // Carga inicial
+        loadCategory("Favorites")
     }
 
-    // --- NUEVO: Función maestra para cambiar de categoría ---
+    // --- DASHBOARD LOGIC ---
     fun loadCategory(category: String) {
         val bandsToLoad = when(category) {
-            "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax", "Sepultura")
-            "Nu Metal" -> listOf("Korn", "Slipknot", "Limp Bizkit", "Linkin Park", "System of a Down")
-            "Classic Rock" -> listOf("Queen", "The Beatles", "Rolling Stones", "Led Zeppelin", "Pink Floyd")
-            "Favorites" -> listOf("Metallica", "Iron Maiden", "Megadeth", "Black Sabbath", "Judas Priest", "Pantera", "Rammstein")
+            "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
+            "Nu Metal" -> listOf("Korn", "Slipknot", "Linkin Park", "System of a Down")
+            "Classic Rock" -> listOf("Queen", "The Beatles", "Led Zeppelin", "Pink Floyd")
+            "Favorites" -> listOf("Metallica", "Iron Maiden", "Megadeth", "Black Sabbath")
             else -> emptyList()
         }
-
         currentCategoryTitle = if (category == "Favorites") "Mis Favoritos" else "Top $category"
         fetchBandsList(bandsToLoad)
     }
@@ -66,11 +68,9 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         }
     }
 
-    // --- BÚSQUEDA ---
     fun fetchSearchArtist(query: String) {
         val cleanQuery = query.trim()
         if (cleanQuery.isEmpty()) return
-
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val result = repo.searchArtist(cleanQuery)
@@ -79,7 +79,6 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         }
     }
 
-    // --- DETALLE ---
     fun getArtistDetail(artist: Artist) {
         viewModelScope.launch {
             state = state.copy(
@@ -91,7 +90,23 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
             )
             withContext(Dispatchers.IO) {
                 val albumsResult = repo.getAlbums(artist.idArtist)
-                state = state.copy(albums = albumsResult ?: emptyList())
+                // --- ORDENAR POR CALIFICACIÓN ---
+                val sortedAlbums = albumsResult?.sortedByDescending {
+                    it.intScore?.toDoubleOrNull() ?: 0.0
+                } ?: emptyList()
+                state = state.copy(albums = sortedAlbums)
+            }
+        }
+    }
+
+    // --- OBTENER CANCIONES ---
+    fun getAlbumTracks(album: Album) {
+        selectedAlbum = album
+        albumTracks = emptyList()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val result = repo.getTracks(album.idAlbum)
+                albumTracks = result ?: emptyList()
             }
         }
     }

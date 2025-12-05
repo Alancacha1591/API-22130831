@@ -6,7 +6,8 @@ data class AlbumResponse(
 
 data class Album(
     val idAlbum: String,
-    val strAlbum: String,       // Nombre del disco
-    val intYearReleased: String,// Año
-    val strAlbumThumb: String?  // Portada del disco
+    val strAlbum: String,
+    val intYearReleased: String,
+    val strAlbumThumb: String?,
+    val intScore: String? // <--- ESTE FALTABA Y CAUSABA ERROR EN EL ORDENAMIENTO
 )

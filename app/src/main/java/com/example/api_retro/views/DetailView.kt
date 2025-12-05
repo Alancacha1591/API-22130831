@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,12 +51,15 @@ import com.example.api_retro.viewModel.MusicViewModel
 fun DetailView(viewModel: MusicViewModel, navController: NavController) {
     val state = viewModel.state
 
+    // Agregamos un fondo con gradiente también aquí para que se vea Pro
+    val brush = Brush.verticalGradient(listOf(Color(0xFF202020), Color.Black))
+
     Scaffold(
         topBar = {
             MainTopBar(
                 title = state.artistName,
-                showBackButton = true, // Activamos el botón
-                onClickBackButton = { navController.popBackStack() } // Acción de volver
+                showBackButton = true,
+                onClickBackButton = { navController.popBackStack() } // <--- AHORA SÍ FUNCIONA
             )
         }
     ) { paddingValues ->
@@ -62,7 +67,7 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color(CUSTOM_BLACK))
+                .background(brush) // Fondo mejorado
                 .verticalScroll(rememberScrollState())
         ) {
             // ... (Tu código de imagen y textos se mantiene igual) ...
@@ -75,14 +80,20 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
 
             Text(text = "Discografía", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
 
-            // Aquí nos aseguramos de que se muestren todos los disponibles
+            // SECCIÓN DISCOGRAFÍA
             if (state.albums.isNotEmpty()) {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
-                    modifier = Modifier.height(180.dp) // Altura fija para evitar recortes
+                    modifier = Modifier.height(200.dp) // Un poco más alto
                 ) {
                     items(state.albums) { album ->
-                        AlbumCard(album)
+                        // Envolvemos el AlbumCard en un Box clickeable
+                        Box(modifier = Modifier.clickable {
+                            viewModel.getAlbumTracks(album) // 1. Cargar canciones
+                            navController.navigate("AlbumDetailView") // 2. Navegar
+                        }) {
+                            AlbumCard(album)
+                        }
                     }
                 }
             } else {

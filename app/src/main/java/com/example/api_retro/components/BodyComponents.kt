@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu // IMPORTANTE
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,8 +47,8 @@ fun MainTopBar(
     title: String,
     showBackButton: Boolean = false,
     onClickBackButton: () -> Unit = {},
-    onClickDrawer: () -> Unit = {}, // Nuevo parámetro para el menú
-    onClickSearch: () -> Unit = {}  // Nuevo parámetro para la búsqueda
+    onClickDrawer: () -> Unit = {}, // Nuevo: Menú lateral
+    onClickSearch: () -> Unit = {}  // Nuevo: Ir a buscar
 ) {
     TopAppBar(
         title = {
@@ -61,7 +61,6 @@ fun MainTopBar(
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             } else {
-                // Si estamos en HOME, mostramos el menú (hamburguesa)
                 IconButton(onClick = { onClickDrawer() }) {
                     Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
                 }
@@ -69,7 +68,6 @@ fun MainTopBar(
         },
         actions = {
             if (!showBackButton) {
-                // Lupa para ir a buscar
                 IconButton(onClick = { onClickSearch() }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                 }
@@ -82,7 +80,11 @@ fun MainTopBar(
 fun ArtistCard(artist: Artist, onClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.padding(10.dp).shadow(8.dp).fillMaxWidth().clickable { onClick() },
+        modifier = Modifier
+            .padding(10.dp)
+            .shadow(8.dp)
+            .fillMaxWidth()
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color(CUSTOM_BLACK))
     ) {
         Column {
@@ -98,9 +100,7 @@ fun ArtistCard(artist: Artist, onClick: () -> Unit) {
 @Composable
 fun MainImage(image: String) {
     AsyncImage(
-        model = image,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
+        model = image, contentDescription = null, contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxWidth().height(250.dp)
     )
 }
@@ -112,10 +112,8 @@ fun AlbumCard(album: Album) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = album.strAlbumThumb ?: "",
-            contentDescription = null,
-            modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
+            model = album.strAlbumThumb ?: "", contentDescription = null,
+            modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop
         )
         Text(text = album.strAlbum, color = Color.White, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp))
         Text(text = album.intYearReleased, color = Color.Gray, fontSize = 10.sp)

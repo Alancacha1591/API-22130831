@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -41,20 +42,25 @@ fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
     val artists by viewModel.searchResults.collectAsState()
 
     Scaffold(
-        // Podemos usar el TopBar aquí también si quieres consistencia,
-        // o dejar la barra de búsqueda flotante que hicimos antes.
-        // Aquí uso la versión de SearchBar directo como pediste antes.
         containerColor = Color(CUSTOM_BLACK)
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                // TRUCO: Solo aplicamos padding abajo, no arriba, para que la barra suba
+                .padding(bottom = padding.calculateBottomPadding())
+        ) {
             SearchBar(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp), // Solo padding a los lados
                 query = query,
                 onQueryChange = { query = it },
-                onSearch = { viewModel.fetchSearchArtist(query) }, // El viewModel ya limpia el string
+                onSearch = { viewModel.fetchSearchArtist(query) },
                 active = false,
                 onActiveChange = {},
                 placeholder = { Text("Busca una banda...") },
+                colors = SearchBarDefaults.colors(containerColor = Color.White),
                 leadingIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -62,21 +68,36 @@ fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
                 },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear",
-                            modifier = Modifier.clickable { query = "" })
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear",
+                            modifier = Modifier.clickable { query = "" }
+                        )
                     } else {
-                        // Botón de búsqueda explícito por si el teclado no ayuda
-                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search",
-                            modifier = Modifier.clickable { viewModel.fetchSearchArtist(query) })
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            modifier = Modifier.clickable { viewModel.fetchSearchArtist(query) }
+                        )
                     }
                 }
             ) {}
 
-            LazyColumn {
-                items(artists) { artist ->
-                    ArtistCard(artist) {
-                        viewModel.getArtistDetail(artist)
-                        navController.navigate("DetailView")
+            // Resultados
+            if (artists.isNotEmpty()) {
+                Text(
+                    text = "Resultados:",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+                LazyColumn {
+                    items(artists) { artist ->
+                        ArtistCard(artist) {
+                            viewModel.getArtistDetail(artist)
+                            navController.navigate("DetailView")
+                        }
                     }
                 }
             }
