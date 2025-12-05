@@ -72,7 +72,8 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
                         idArtist = artist.idArtist,
                         strArtist = artist.strArtist,
                         strGenre = artist.strGenre,
-                        strArtistThumb = artist.strArtistThumb
+                        strArtistThumb = artist.strArtistThumb,
+                        strBiographyEN = artist.strBiographyEN
                     )
                     repo.addFavorite(newFav)
                 }
@@ -96,7 +97,7 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
                             strArtist = fav.strArtist,
                             strGenre = fav.strGenre,
                             strArtistThumb = fav.strArtistThumb,
-                            strBiographyEN = "", // Campos vacíos porque no los guardamos en BD
+                            strBiographyEN = fav.strBiographyEN, // Campos vacíos porque no los guardamos en BD
                             intFormedYear = "",
                             strCountry = "",
                             strWebsite = ""

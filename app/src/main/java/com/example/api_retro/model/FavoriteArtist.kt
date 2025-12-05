@@ -17,5 +17,8 @@ data class FavoriteArtist(
     val strGenre: String?,
 
     @ColumnInfo(name = "str_artist_thumb")
-    val strArtistThumb: String?
+    val strArtistThumb: String?,
+
+    @ColumnInfo(name = "str_Biography_EN")
+    val strBiographyEN: String?
 )
