@@ -1,6 +1,5 @@
 package com.example.api_retro.views
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,7 +36,7 @@ import com.example.api_retro.viewModel.MusicViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchGameView(viewModel: MusicViewModel, navController: NavController) {
+fun SearchArtistView(viewModel: MusicViewModel, navController: NavController) {
     var query by remember { mutableStateOf("") }
     val artists by viewModel.searchResults.collectAsState()
 

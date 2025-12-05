@@ -8,8 +8,7 @@ import com.example.api_retro.viewModel.MusicViewModel
 import com.example.api_retro.views.AlbumDetailView
 import com.example.api_retro.views.DetailView
 import com.example.api_retro.views.HomeView
-import com.example.api_retro.views.SearchGameView
-
+import com.example.api_retro.views.SearchArtistView
 
 @Composable
 fun NavManager(viewModel: MusicViewModel) {
@@ -19,7 +18,7 @@ fun NavManager(viewModel: MusicViewModel) {
 
         composable("Home") { HomeView(viewModel, navController) }
         composable("DetailView") { DetailView(viewModel, navController) }
-        composable("SearchGameView") { SearchGameView(viewModel, navController) }
+        composable("SearchArtistView") { SearchArtistView(viewModel, navController) }
         composable("AlbumDetailView") { AlbumDetailView(viewModel, navController) }
     }
 }

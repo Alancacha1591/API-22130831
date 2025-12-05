@@ -8,6 +8,5 @@ data class Album(
     val idAlbum: String,
     val strAlbum: String,
     val intYearReleased: String,
-    val strAlbumThumb: String?,
-    val intScore: String? // <--- ESTE FALTABA Y CAUSABA ERROR EN EL ORDENAMIENTO
+    val strAlbumThumb: String?
 )

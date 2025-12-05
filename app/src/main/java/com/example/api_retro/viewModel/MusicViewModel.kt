@@ -30,11 +30,11 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     var state by mutableStateOf(MusicDetailState())
         private set
 
-    // --- Variables para Tracks y Dashboard ---
     var selectedAlbum by mutableStateOf<Album?>(null)
         private set
     var albumTracks by mutableStateOf<List<Track>>(emptyList())
         private set
+
     var currentCategoryTitle by mutableStateOf("Mis Favoritos")
         private set
 
@@ -42,7 +42,6 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         loadCategory("Favorites")
     }
 
-    // --- DASHBOARD LOGIC ---
     fun loadCategory(category: String) {
         val bandsToLoad = when(category) {
             "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
@@ -86,20 +85,17 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
                 biography = artist.strBiographyEN ?: "No biography available",
                 genre = artist.strGenre ?: "Music",
                 artistImage = artist.strArtistThumb ?: "",
-                albums = emptyList()
+                albums = emptyList() // Limpiamos primero
             )
             withContext(Dispatchers.IO) {
                 val albumsResult = repo.getAlbums(artist.idArtist)
-                // --- ORDENAR POR CALIFICACIÓN ---
-                val sortedAlbums = albumsResult?.sortedByDescending {
-                    it.intScore?.toDoubleOrNull() ?: 0.0
-                } ?: emptyList()
+                // SIMPLIFICACIÓN: Solo ordenamos por año (el más nuevo primero) y listo.
+                val sortedAlbums = albumsResult?.sortedByDescending { it.intYearReleased } ?: emptyList()
                 state = state.copy(albums = sortedAlbums)
             }
         }
     }
 
-    // --- OBTENER CANCIONES ---
     fun getAlbumTracks(album: Album) {
         selectedAlbum = album
         albumTracks = emptyList()
