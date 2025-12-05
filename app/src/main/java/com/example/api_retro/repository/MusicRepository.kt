@@ -1,14 +1,20 @@
 package com.example.api_retro.repository
 
 import com.example.api_retro.data.ApiService
-import com.example.api_retro.model.Artist
 import com.example.api_retro.model.Album
+import com.example.api_retro.model.Artist
+import com.example.api_retro.model.FavoriteArtist
 import com.example.api_retro.model.Track
+import com.example.api_retro.room.MusicDatabaseDao
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class MusicRepository @Inject constructor(private val apiService: ApiService) {
+class MusicRepository @Inject constructor(
+    private val apiService: ApiService,
+    private val musicDao: MusicDatabaseDao // <--- Inyectamos el DAO
+) {
 
-    // Buscar Artista (Para el Home o Búsqueda)
+    // --- API ---
     suspend fun searchArtist(name: String): List<Artist>? {
         val response = apiService.searchArtist(name)
         if (response.isSuccessful) {
@@ -17,7 +23,6 @@ class MusicRepository @Inject constructor(private val apiService: ApiService) {
         return null
     }
 
-    // Obtener Álbumes (Para el Detalle)
     suspend fun getAlbums(artistId: String): List<Album>? {
         val response = apiService.getAlbums(artistId)
         if (response.isSuccessful) {
@@ -26,12 +31,28 @@ class MusicRepository @Inject constructor(private val apiService: ApiService) {
         return null
     }
 
-    // Obtener Tracks de un Álbum
     suspend fun getTracks(albumId: String): List<Track>? {
         val response = apiService.getTracks(albumId)
         if (response.isSuccessful) {
             return response.body()?.track
         }
         return null
+    }
+
+    // --- ROOM (FAVORITOS) ---
+
+    val favorites: Flow<List<FavoriteArtist>> = musicDao.getFavorites()
+
+    suspend fun addFavorite(artist: FavoriteArtist) {
+        musicDao.insertFavorite(artist)
+    }
+
+    suspend fun deleteFavorite(artist: FavoriteArtist) {
+        musicDao.deleteFavorite(artist)
+    }
+
+    // Helper para saber si ya existe
+    suspend fun getFavoriteById(id: String): FavoriteArtist? {
+        return musicDao.getFavoriteById(id)
     }
 }

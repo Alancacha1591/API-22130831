@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.example.api_retro.model.FavoriteArtist
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(private val repo: MusicRepository) : ViewModel() {
@@ -38,25 +41,85 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     var currentCategoryTitle by mutableStateOf("Mis Favoritos")
         private set
 
+    var currentArtist: Artist? = null
+        private set
+
+    // Lista de favoritos (observando la BD)
+    private val _favorites = MutableStateFlow<List<FavoriteArtist>>(emptyList())
+    val favorites = _favorites.asStateFlow()
+
     init {
-        loadCategory("Favorites")
+        // Iniciamos la recolección de favoritos
+        viewModelScope.launch {
+            repo.favorites.collect { list ->
+                _favorites.value = list
+            }
+        }
     }
 
-    fun loadCategory(category: String) {
-        val bandsToLoad = when(category) {
-            "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
-            "Nu Metal" -> listOf("Korn", "Slipknot", "Linkin Park", "System of a Down")
-            "Heavy Metal" -> listOf("Iron Maiden", "Judas Priest", "Helloween", "Ozzy Osbourne")
-            "Metalcore" -> listOf("Bullet for My Valentine", "Killswitch Engage", "Bring Me the Horizon", "Architects")
-            "Classic Rock" -> listOf("Queen", "The Beatles", "Led Zeppelin", "Pink Floyd")
-            "Hard rock" -> listOf("Guns N' Roses", "Van Halen", "AC/DC", "Def Leppard")
-            "Grunge" -> listOf("Alice in Chains", "Nirvana", "Soundgarden", "Pearl Jam")
-            "Rock Alternativo" -> listOf("The Killers", "The Strokes", "The White Stripes", "Arctic Monkeys")
-            "Favorites" -> listOf("Death", "Poppy", "Avenged Sevenfold", "Spiritbox", "The Warning")
-            else -> emptyList()
+
+    // Función para guardar un artista como favorito
+    fun toggleFavorite(artist: Artist) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val existing = repo.getFavoriteById(artist.idArtist)
+                if (existing != null) {
+                    // Si ya existe, lo borramos
+                    repo.deleteFavorite(existing)
+                } else {
+                    // Si no existe, lo creamos
+                    val newFav = FavoriteArtist(
+                        idArtist = artist.idArtist,
+                        strArtist = artist.strArtist,
+                        strGenre = artist.strGenre,
+                        strArtistThumb = artist.strArtistThumb
+                    )
+                    repo.addFavorite(newFav)
+                }
+            }
         }
+    }
+
+    // Función para cargar la categoría "Mis Favoritos" DESDE ROOM
+    // Modifica tu función loadCategory así:
+    fun loadCategory(category: String) {
         currentCategoryTitle = if (category == "Favorites") "Mis Favoritos" else "Top $category"
-        fetchBandsList(bandsToLoad)
+
+        if (category == "Favorites") {
+            // Cargar desde Room
+            viewModelScope.launch {
+                repo.favorites.collect { favs ->
+                    // Convertimos FavoriteArtist a Artist para que la vista lo entienda
+                    val mappedArtists = favs.map { fav ->
+                        Artist(
+                            idArtist = fav.idArtist,
+                            strArtist = fav.strArtist,
+                            strGenre = fav.strGenre,
+                            strArtistThumb = fav.strArtistThumb,
+                            strBiographyEN = "", // Campos vacíos porque no los guardamos en BD
+                            intFormedYear = "",
+                            strCountry = "",
+                            strWebsite = ""
+                        )
+                    }
+                    _artists.value = mappedArtists
+                }
+            }
+        } else {
+            // Cargar desde API (Tu lógica original de when)
+            val bandsToLoad = when(category) {
+                "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
+                "Nu Metal" -> listOf("Korn", "Slipknot", "Linkin Park", "System of a Down")
+                "Heavy Metal" -> listOf("Iron Maiden", "Judas Priest", "Helloween", "Ozzy Osbourne")
+                "Metalcore" -> listOf("Bullet for My Valentine", "Killswitch Engage", "Bring Me the Horizon", "Architects")
+                "Classic Rock" -> listOf("Queen", "The Beatles", "Led Zeppelin", "Pink Floyd")
+                "Hard rock" -> listOf("Guns N' Roses", "Van Halen", "AC/DC", "Def Leppard")
+                "Grunge" -> listOf("Alice in Chains", "Nirvana", "Soundgarden", "Pearl Jam")
+                "Rock Alternativo" -> listOf("The Killers", "The Strokes", "The White Stripes", "Arctic Monkeys")
+                else -> emptyList()
+            }
+            fetchBandsList(bandsToLoad)
+        }
     }
 
     private fun fetchBandsList(bands: List<String>) {
@@ -84,17 +147,18 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     }
 
     fun getArtistDetail(artist: Artist) {
+        currentArtist = artist // <--- GUARDAMOS EL ARTISTA AQUÍ
+
         viewModelScope.launch {
             state = state.copy(
                 artistName = artist.strArtist,
                 biography = artist.strBiographyEN ?: "No biography available",
                 genre = artist.strGenre ?: "Music",
                 artistImage = artist.strArtistThumb ?: "",
-                albums = emptyList() // Limpiamos primero
+                albums = emptyList()
             )
             withContext(Dispatchers.IO) {
                 val albumsResult = repo.getAlbums(artist.idArtist)
-                // SIMPLIFICACIÓN: Solo ordenamos por año (el más nuevo primero) y listo.
                 val sortedAlbums = albumsResult?.sortedByDescending { it.intYearReleased } ?: emptyList()
                 state = state.copy(albums = sortedAlbums)
             }

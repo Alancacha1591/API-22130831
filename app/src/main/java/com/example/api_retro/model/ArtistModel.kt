@@ -4,11 +4,16 @@ data class ArtistResponse(
     val artists: List<Artist>? // Puede ser nulo si no encuentra nada
 )
 
+// En model/ArtistModel.kt
 data class Artist(
-    val idArtist: String,       // ID único (ej: "111239")
-    val strArtist: String,      // Nombre (ej: "Coldplay")
-    val strGenre: String?,      // Género (ej: "Alternative Rock")
-    val strStyle: String?,      // Estilo (ej: "Rock/Pop")
-    val strArtistThumb: String?,// Imagen cuadrada del artista
-    val strBiographyEN: String? // Biografía en inglés
+    val idArtist: String,
+    val strArtist: String,
+    val strGenre: String? = null, // <--- Agrega "= null" o el valor que corresponda
+    val strArtistThumb: String? = null,
+    val strBiographyEN: String? = null,
+    val intFormedYear: String? = null,
+    val strCountry: String? = null,
+    val strWebsite: String? = null,
+    // ... haz lo mismo con el resto de campos ...
+    val strFacebook: String? = null
 )

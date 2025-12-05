@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.dagger.hilt.android)
-    alias(libs.plugins.kotlin.ksp)
+    // alias(libs.plugins.kotlin.ksp)  <--- BORRA O COMENTA ESTA LÍNEA
+    id("kotlin-kapt")
 }
 
 android {
@@ -42,12 +43,31 @@ android {
 }
 
 dependencies {
-    // Core Android
+    // ---------------------------------------------------------
+    // 1. CONFIGURACIÓN MANUAL (MANTENER ESTO - ES LO NUEVO)
+    // ---------------------------------------------------------
+
+    // Room (Alpha para Kotlin 2.1)
+    val room_version = "2.7.0-alpha11"
+    implementation ("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+
+    // Dagger Hilt (Versión nueva 2.51.1)
+    val hilt_version = "2.51.1"
+    implementation ("com.google.dagger:hilt-android:$hilt_version")
+    kapt ("com.google.dagger:hilt-compiler:$hilt_version")
+
+    // Dagger Core (Opcional, pero si lo dejas, que coincida la versión)
+    implementation ("com.google.dagger:dagger:$hilt_version")
+    kapt ("com.google.dagger:dagger-compiler:$hilt_version")
+
+    // ---------------------------------------------------------
+    // 2. DEPENDENCIAS ANDROID Y COMPOSE (MANTENER)
+    // ---------------------------------------------------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -56,9 +76,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material:material-icons-extended")
 
-    // Dagger Hilt
-    implementation(libs.dagger.hilt.android)
-    ksp(libs.dagger.hilt.compiler)
+    // ---------------------------------------------------------
+    // 3. ELIMINAR ESTAS LÍNEAS (ESTABAN CAUSANDO EL DUPLICADO)
+    // ---------------------------------------------------------
+    // BORRA ESTO -> implementation(libs.dagger.hilt.android)
+    // BORRA ESTO -> ksp(libs.dagger.hilt.compiler)  <--- ¡ESTA ERA LA CULPABLE!
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.8.4")

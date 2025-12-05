@@ -9,7 +9,7 @@ lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2024.09.00"
 material3 = "1.4.0"
-hilt = "2.57.1"
+hilt = "2.51.1"
 ksp = "2.0.21-1.0.28"
 
 [libraries]

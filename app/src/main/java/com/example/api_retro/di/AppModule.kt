@@ -1,10 +1,15 @@
 package com.example.api_retro.di
 
-import com.example.api_retro.data.ApiService // Asegúrate de importar tu nueva interfaz
+import android.content.Context
+import androidx.room.Room
+import com.example.api_retro.data.ApiService
+import com.example.api_retro.room.MusicDatabase
+import com.example.api_retro.room.MusicDatabaseDao
 import com.example.api_retro.utils.Constants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -27,5 +32,22 @@ object AppModule {
     @Provides
     fun providesApiService(retrofit: Retrofit): ApiService { // Cambiado nombre y tipo
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRoom(@ApplicationContext context: Context): MusicDatabase {
+        return Room.databaseBuilder(
+            context,
+            MusicDatabase::class.java,
+            "music_database"
+        ).fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideMusicDao(db: MusicDatabase): MusicDatabaseDao {
+        return db.musicDao()
     }
 }
