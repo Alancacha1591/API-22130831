@@ -26,12 +26,17 @@ import kotlinx.coroutines.delay
 @Composable
 fun WelcomeView(navController: NavController) {
     // 1. Efecto de lanzamiento para la navegación automática
+    // 1. Efecto de lanzamiento CORREGIDO
     LaunchedEffect(key1 = true) {
-        // Espera 2000 milisegundos (2 segundos)
         delay(2000L)
-        // Navega a HomeView y borra la pila de navegación para que no se pueda volver
-        navController.popBackStack()
-        navController.navigate("HomeView")
+        // Navegamos a HomeView
+        navController.navigate("HomeView") {
+            // Y al mismo tiempo, eliminamos "WelcomeView" de la historia
+            // para que si el usuario da "Atrás", no vuelva a la pantalla de carga.
+            popUpTo("WelcomeView") {
+                inclusive = true
+            }
+        }
     }
 
     // 2. Diseño de la pantalla

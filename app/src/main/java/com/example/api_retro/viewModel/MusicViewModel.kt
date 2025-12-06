@@ -55,6 +55,8 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
                 _favorites.value = list
             }
         }
+
+        loadCategory("Favorites")
     }
 
 

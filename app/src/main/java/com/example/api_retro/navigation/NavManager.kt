@@ -20,7 +20,7 @@ fun NavManager(viewModel: MusicViewModel) {
         startDestination = "WelcomeView"
     ) {
         composable("WelcomeView") {
-            WelcomeView(navController = navController)
+            WelcomeView(navController)
         }
 
         composable("HomeView") {
