@@ -6,7 +6,7 @@ data class TrackResponse(
 
 data class Track(
     val idTrack: String,
-    val strTrack: String,       // Nombre de la canción
-    val intDuration: String?,   // Duración en ms
-    val intTrackNumber: String? // Número de pista
+    val strTrack: String,
+    val intDuration: String?,
+    val intTrackNumber: String?
 )

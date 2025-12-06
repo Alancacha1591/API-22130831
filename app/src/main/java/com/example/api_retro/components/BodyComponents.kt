@@ -1,7 +1,5 @@
 package com.example.api_retro.components
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,8 +49,8 @@ fun MainTopBar(
     title: String,
     showBackButton: Boolean = false,
     onClickBackButton: () -> Unit = {},
-    onClickDrawer: () -> Unit = {}, // Nuevo: Menú lateral
-    onClickSearch: () -> Unit = {}  // Nuevo: Ir a buscar
+    onClickDrawer: () -> Unit = {},
+    onClickSearch: () -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -126,23 +123,6 @@ fun AlbumCard(album: Album) {
 }
 
 @Composable
-fun WebsiteButton(url: String?) {
-    if (!url.isNullOrEmpty()) {
-        val context = LocalContext.current
-        val finalUrl = if (url.startsWith("http")) url else "https://$url"
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl))
-        Button(
-            onClick = { context.startActivity(intent) },
-            colors = ButtonDefaults.buttonColors(contentColor = Color.White, containerColor = Color.DarkGray),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(text = "Visitar Sitio Web Oficial")
-        }
-    }
-}
-
-@Composable
 fun EmptyFavoritesMessage(navController: NavController) {
     Column(
         modifier = Modifier
@@ -151,7 +131,6 @@ fun EmptyFavoritesMessage(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Icono (opcional)
         Icon(
             imageVector = Icons.Filled.StarOutline,
             contentDescription = "No favoritos",
@@ -160,31 +139,28 @@ fun EmptyFavoritesMessage(navController: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Título del mensaje
         Text(
             text = "¡Aún no tienes favoritos!",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = Color.Gray,
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Cuerpo del mensaje
         Text(
-            text = "Busca tus artistas preferidos y toca la estrella para agregarlos a esta lista.",
+            text = "Busca tus artistas preferidos y toca el corazón para agregarlos a esta lista.",
             color = Color.Gray,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón para ir a buscar (Asumiendo que tu ruta de búsqueda es "SearchArtistView")
         Button(
             onClick = {
-                // Navega a tu pantalla de búsqueda
                 navController.navigate("SearchArtistView")
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B)) // Color verde oscuro de ejemplo
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00796B))
         ) {
             Text("Buscar Artistas")
         }

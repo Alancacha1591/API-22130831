@@ -30,7 +30,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesApiService(retrofit: Retrofit): ApiService { // Cambiado nombre y tipo
+    fun providesApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
 

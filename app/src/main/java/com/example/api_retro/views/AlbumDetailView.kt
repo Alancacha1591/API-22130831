@@ -1,24 +1,19 @@
 package com.example.api_retro.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,18 +36,15 @@ import com.example.api_retro.viewModel.MusicViewModel
 fun AlbumDetailView(viewModel: MusicViewModel, navController: NavController) {
     val album = viewModel.selectedAlbum
     val tracks = viewModel.albumTracks
-
-    // Gradiente Dark Metal
     val brush = Brush.verticalGradient(
-        colors = listOf(Color(0xFF2C0000), Color(0xFF000000)) // Rojo muy oscuro a Negro
+        colors = listOf(Color(0xFF2C0000), Color(0xFF000000))
     )
-
     Scaffold(
         topBar = {
             MainTopBar(
                 title = album?.strAlbum ?: "Album",
                 showBackButton = true,
-                onClickBackButton = { navController.popBackStack() } // <--- AHORA SÍ FUNCIONA
+                onClickBackButton = { navController.popBackStack() }
             )
         }
     ) { paddingValues ->
@@ -60,9 +52,8 @@ fun AlbumDetailView(viewModel: MusicViewModel, navController: NavController) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(brush) // Fondo Gradiente
+                .background(brush)
         ) {
-            // Cabecera del Álbum (Imagen + Año)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -81,13 +72,11 @@ fun AlbumDetailView(viewModel: MusicViewModel, navController: NavController) {
                 Column {
                     Text(text = album?.strAlbum ?: "", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     Text(text = "Lanzamiento: ${album?.intYearReleased ?: "N/A"}", color = Color.Gray)
-                    Text(text = "${tracks.size} Canciones", color = Color(0xFFE91E63), fontWeight = FontWeight.Bold) // Acento Rojo
+                    Text(text = "${tracks.size} Canciones", color = Color(0xFFE91E63), fontWeight = FontWeight.Bold)
                 }
             }
 
             Divider(color = Color.DarkGray, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
-
-            // Lista de Canciones
             LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(tracks) { track ->
                     TrackItem(track)

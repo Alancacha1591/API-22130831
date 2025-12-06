@@ -19,27 +19,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.api_retro.R // Asegúrate de tener un recurso drawable o usar íconos
+import com.example.api_retro.R
 import com.example.api_retro.utils.Constants.Companion.CUSTOM_BLACK
 import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeView(navController: NavController) {
-    // 1. Efecto de lanzamiento para la navegación automática
-    // 1. Efecto de lanzamiento CORREGIDO
     LaunchedEffect(key1 = true) {
         delay(2000L)
-        // Navegamos a HomeView
         navController.navigate("HomeView") {
-            // Y al mismo tiempo, eliminamos "WelcomeView" de la historia
-            // para que si el usuario da "Atrás", no vuelva a la pantalla de carga.
             popUpTo("WelcomeView") {
                 inclusive = true
             }
         }
     }
 
-    // 2. Diseño de la pantalla
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,8 +42,6 @@ fun WelcomeView(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Aquí puedes usar tu ícono de app o un logo.
-        // Nota: Asumo que tienes un recurso de ícono llamado ic_launcher_foreground.
         Image(
             painter = painterResource(id = R.drawable.music),
             contentDescription = "Logo",

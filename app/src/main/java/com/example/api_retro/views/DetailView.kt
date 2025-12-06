@@ -11,13 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon // <--- IMPORTANTE: Este es el Icon correcto
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState // <--- Necesario
-import androidx.compose.runtime.getValue     // <--- Necesario
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,10 +36,8 @@ import com.example.api_retro.viewModel.MusicViewModel
 fun DetailView(viewModel: MusicViewModel, navController: NavController) {
     val state = viewModel.state
 
-    // 1. Observamos la lista de favoritos de la base de datos
     val favorites by viewModel.favorites.collectAsState()
 
-    // 2. Calculamos si el artista actual está en esa lista
     val isFavorite = favorites.any { it.idArtist == viewModel.currentArtist?.idArtist }
 
     val brush = Brush.verticalGradient(listOf(Color(0xFF202020), Color.Black))
@@ -52,12 +50,9 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
                 onClickBackButton = { navController.popBackStack() }
             )
         },
-        // Botón flotante para el favorito (Opción recomendada: FloatingActionButton o en TopBar)
-        // Pero lo dejaremos donde tú lo pusiste dentro de la columna o aquí:
         floatingActionButton = {
             IconButton(
                 onClick = {
-                    // Usamos el artista guardado en el ViewModel
                     viewModel.currentArtist?.let { artist ->
                         viewModel.toggleFavorite(artist)
                     }
@@ -68,10 +63,8 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
                     .background(Color.White.copy(alpha = 0.2f), shape = androidx.compose.foundation.shape.CircleShape)
             ) {
                 Icon(
-                    // Cambia el icono si es favorito o no
                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Favorito",
-                    // Cambia el color: Rojo si es favorito, Blanco si no
                     tint = if (isFavorite) Color.Red else Color.White,
                     modifier = Modifier.size(30.dp)
                 )
@@ -86,12 +79,7 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
                 .verticalScroll(rememberScrollState())
         ) {
             MainImage(image = state.artistImage)
-
             Column(modifier = Modifier.padding(16.dp)) {
-
-                // He movido el botón para que sea un FAB (Floating Action Button) arriba,
-                // pero si quieres ponerlo junto al título "Biografía", puedes hacerlo aquí.
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -99,12 +87,9 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
                 ) {
                     Text(text = "Biografía", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
-
                 Text(text = state.biography, color = Color.LightGray)
             }
-
             Text(text = "Discografía", color = Color.White, fontSize = 20.sp, modifier = Modifier.padding(16.dp))
-
             if (state.albums.isNotEmpty()) {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -122,8 +107,6 @@ fun DetailView(viewModel: MusicViewModel, navController: NavController) {
             } else {
                 Text("No albums found (API Limit)", color = Color.Red, modifier = Modifier.padding(16.dp))
             }
-
-            // Espacio extra al final para que el scroll no corte nada
             Spacer(modifier = Modifier.height(80.dp))
         }
     }

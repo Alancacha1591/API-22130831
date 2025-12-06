@@ -11,10 +11,9 @@ import javax.inject.Inject
 
 class MusicRepository @Inject constructor(
     private val apiService: ApiService,
-    private val musicDao: MusicDatabaseDao // <--- Inyectamos el DAO
+    private val musicDao: MusicDatabaseDao
 ) {
 
-    // --- API ---
     suspend fun searchArtist(name: String): List<Artist>? {
         val response = apiService.searchArtist(name)
         if (response.isSuccessful) {
@@ -39,8 +38,6 @@ class MusicRepository @Inject constructor(
         return null
     }
 
-    // --- ROOM (FAVORITOS) ---
-
     val favorites: Flow<List<FavoriteArtist>> = musicDao.getFavorites()
 
     suspend fun addFavorite(artist: FavoriteArtist) {
@@ -51,7 +48,6 @@ class MusicRepository @Inject constructor(
         musicDao.deleteFavorite(artist)
     }
 
-    // Helper para saber si ya existe
     suspend fun getFavoriteById(id: String): FavoriteArtist? {
         return musicDao.getFavoriteById(id)
     }

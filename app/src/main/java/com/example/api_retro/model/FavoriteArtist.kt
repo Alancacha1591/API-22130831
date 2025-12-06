@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class FavoriteArtist(
     @PrimaryKey
     @ColumnInfo(name = "id_artist")
-    val idArtist: String, // Usamos el ID de la API como PrimaryKey para no repetir
+    val idArtist: String,
 
     @ColumnInfo(name = "str_artist")
     val strArtist: String,

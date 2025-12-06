@@ -18,8 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.example.api_retro.model.FavoriteArtist
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(private val repo: MusicRepository) : ViewModel() {
@@ -44,32 +42,25 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     var currentArtist: Artist? = null
         private set
 
-    // Lista de favoritos (observando la BD)
     private val _favorites = MutableStateFlow<List<FavoriteArtist>>(emptyList())
     val favorites = _favorites.asStateFlow()
 
     init {
-        // Iniciamos la recolección de favoritos
         viewModelScope.launch {
             repo.favorites.collect { list ->
                 _favorites.value = list
             }
         }
-
         loadCategory("Favorites")
     }
 
-
-    // Función para guardar un artista como favorito
     fun toggleFavorite(artist: Artist) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val existing = repo.getFavoriteById(artist.idArtist)
                 if (existing != null) {
-                    // Si ya existe, lo borramos
                     repo.deleteFavorite(existing)
                 } else {
-                    // Si no existe, lo creamos
                     val newFav = FavoriteArtist(
                         idArtist = artist.idArtist,
                         strArtist = artist.strArtist,
@@ -83,23 +74,18 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         }
     }
 
-    // Función para cargar la categoría "Mis Favoritos" DESDE ROOM
-    // Modifica tu función loadCategory así:
     fun loadCategory(category: String) {
         currentCategoryTitle = if (category == "Favorites") "Mis Favoritos" else "Top $category"
-
         if (category == "Favorites") {
-            // Cargar desde Room
             viewModelScope.launch {
                 repo.favorites.collect { favs ->
-                    // Convertimos FavoriteArtist a Artist para que la vista lo entienda
                     val mappedArtists = favs.map { fav ->
                         Artist(
                             idArtist = fav.idArtist,
                             strArtist = fav.strArtist,
                             strGenre = fav.strGenre,
                             strArtistThumb = fav.strArtistThumb,
-                            strBiographyEN = fav.strBiographyEN, // Campos vacíos porque no los guardamos en BD
+                            strBiographyEN = fav.strBiographyEN,
                             intFormedYear = "",
                             strCountry = "",
                             strWebsite = ""
@@ -109,7 +95,6 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
                 }
             }
         } else {
-            // Cargar desde API (Tu lógica original de when)
             val bandsToLoad = when(category) {
                 "Thrash" -> listOf("Metallica", "Megadeth", "Slayer", "Anthrax")
                 "Nu Metal" -> listOf("Korn", "Slipknot", "Linkin Park", "System of a Down")
@@ -139,10 +124,7 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     }
 
     fun fetchSearchArtist(query: String) {
-        // 1. Limpieza básica: quitamos espacios
         val cleanQuery = query.trim()
-
-        // Si el usuario borra todo, limpiamos la lista de resultados
         if (cleanQuery.isEmpty()) {
             _searchResults.value = emptyList()
             return
@@ -151,21 +133,11 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    // INTENTO 1: Búsqueda normal (tal cual lo escribió el usuario)
                     var result = repo.searchArtist(cleanQuery)
-
-                    // INTENTO 2: Estrategia "Fuzzy" (Truco del comodín)
-                    // Si la búsqueda exacta no trajo nada o la lista está vacía...
                     if (result.isNullOrEmpty()) {
-                        // Agregamos "%" al final. En muchas bases de datos SQL (que usa la API por detrás),
-                        // esto significa "todo lo que empiece con..."
-                        // Ejemplo: "Juan%" encontrará "Juanes", "Juan Gabriel", etc.
                         result = repo.searchArtist("$cleanQuery%")
                     }
-
-                    // Actualizamos la lista con lo que hayamos encontrado (o vacía si falló todo)
                     _searchResults.value = result ?: emptyList()
-
                 } catch (e: Exception) {
                     e.printStackTrace()
                     _searchResults.value = emptyList()
@@ -175,8 +147,7 @@ class MusicViewModel @Inject constructor(private val repo: MusicRepository) : Vi
     }
 
     fun getArtistDetail(artist: Artist) {
-        currentArtist = artist // <--- GUARDAMOS EL ARTISTA AQUÍ
-
+        currentArtist = artist
         viewModelScope.launch {
             state = state.copy(
                 artistName = artist.strArtist,

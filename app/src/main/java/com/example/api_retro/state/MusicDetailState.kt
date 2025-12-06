@@ -7,5 +7,5 @@ data class MusicDetailState(
     val biography: String = "",
     val genre: String = "",
     val artistImage: String = "",
-    val albums: List<Album> = emptyList() // Lista de discos para mostrar en el detalle
+    val albums: List<Album> = emptyList()
 )

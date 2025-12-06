@@ -46,13 +46,12 @@ fun SearchArtistView(viewModel: MusicViewModel, navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                // TRUCO: Solo aplicamos padding abajo, no arriba, para que la barra suba
                 .padding(bottom = padding.calculateBottomPadding())
         ) {
             SearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp), // Solo padding a los lados
+                    .padding(horizontal = 10.dp),
                 query = query,
                 onQueryChange = { query = it },
                 onSearch = { viewModel.fetchSearchArtist(query) },
@@ -81,8 +80,6 @@ fun SearchArtistView(viewModel: MusicViewModel, navController: NavController) {
                     }
                 }
             ) {}
-
-            // Resultados
             if (artists.isNotEmpty()) {
                 Text(
                     text = "Resultados:",
